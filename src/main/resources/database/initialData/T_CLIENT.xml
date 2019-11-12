@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd"
+>
+   
+    <changeSet id="1" author="lorenzo.lince">
+        
+        <insert schemaName="${defaultSchemaName}" tableName="client">
+            <column name="code"            valueNumeric="${defaultSchemaName}.S_CLIENT.NEXTVAL"  />
+            <column name="name"            value="Lorenzo Lince"/>
+            <column name="schema"         value="${defaultSchemaName}"/>
+        </insert>
+    
+        <insert schemaName="${defaultSchemaName}" tableName="client">
+            <column name="code"            valueNumeric="${defaultSchemaName}.S_CLIENT.NEXTVAL"  />
+            <column name="name"            value="Luis Ortegano"/>
+            <column name="schema"         value="${defaultSchemaName}"/>
+        </insert>
+        <insert schemaName="${defaultSchemaName}" tableName="client">
+            <column name="code"            valueNumeric="${defaultSchemaName}.S_CLIENT.NEXTVAL"   />
+            <column name="name"            value="Daniel Bastidas"/>
+            <column name="schema"         value="${defaultSchemaName}"/>
+        </insert>
+        <insert schemaName="${defaultSchemaName}" tableName="client">
+            <column name="code"            valueNumeric="${defaultSchemaName}.S_CLIENT.NEXTVAL"   />
+            <column name="name"            value="Luis Palacios"/>
+            <column name="schema"         value="${defaultSchemaName}"/>
+        </insert>
+        <insert schemaName="${defaultSchemaName}" tableName="client">
+            <column name="code"            valueNumeric="${defaultSchemaName}.S_CLIENT.NEXTVAL"  />
+            <column name="name"            value="Hector Quintero "/>
+            <column name="schema"         value="${defaultSchemaName}"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
