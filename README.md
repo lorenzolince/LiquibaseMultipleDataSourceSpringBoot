@@ -7,4 +7,4 @@
 4. run docker-compose up -d
 5. cd LiquibaseMultipleDataSourceSpringBoot
 6.  mvn clean install spring-boot:run
-7. to access  http://localhost:8088/swagger-ui.html
+7. to access  http://localhost:8088/liquibase/swagger-ui.html
