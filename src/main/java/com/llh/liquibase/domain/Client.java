@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "CLIENT")
 @SequenceGenerator(name = "SequenceClient",
-        sequenceName = "S_CLIENT")
+        sequenceName = "S_CLIENT", allocationSize = 1)
 public class Client  implements Serializable{
     
     private static final long serialVersionUID = 3716143772023645465L;
