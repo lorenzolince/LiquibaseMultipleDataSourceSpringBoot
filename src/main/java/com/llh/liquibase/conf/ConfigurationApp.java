@@ -6,13 +6,16 @@
 package com.llh.liquibase.conf;
 
 import com.llh.liquibase.util.DynamicDataSource;
+import com.llh.liquibase.util.TenantIdentifierResolver;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
+import org.hibernate.MultiTenancyStrategy;
+import org.hibernate.cfg.Environment;
+import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,6 +27,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -36,6 +40,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         transactionManagerRef = "transactionManager")
 @EnableAutoConfiguration
 @EnableTransactionManagement
+@EnableScheduling
 public class ConfigurationApp {
 
     @Value("${master.datasource.username}")
@@ -48,6 +53,7 @@ public class ConfigurationApp {
     private String password;
     @Value("${spring.jpa.database-platform}")
     private String dialect;
+
     @Primary
     @Bean(name = "dataSource", destroyMethod = "")
     public DataSource dataSource() {
@@ -58,15 +64,25 @@ public class ConfigurationApp {
                 .setPassword(password);
 
     }
+
     @Primary
     @Bean("entityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("dataSource") DataSource dataSource) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("dataSource") DataSource dataSource,
+            MultiTenantConnectionProvider multiTenantConnectionProviderImpl,
+            TenantIdentifierResolver currentTenantIdentifierResolverImpl) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("hibernate.hbm2ddl.auto", "none");
+        properties.put("hibernate.dialect", dialect);
+        properties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
+        properties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl);
+        properties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, currentTenantIdentifierResolverImpl);
+
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
         em.setPackagesToScan(new String[]{"com.llh.liquibase.domain"});
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
-        em.setJpaProperties(additionalProperties());
+        em.setJpaPropertyMap(properties);
         return em;
     }
 
@@ -91,13 +107,6 @@ public class ConfigurationApp {
             System.out.println(" Exception: " + e.getMessage());
         }
         return liquibase;
-    }
-
-    Properties additionalProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "none");
-        properties.setProperty("hibernate.dialect", dialect);
-        return properties;
     }
 
     @Bean

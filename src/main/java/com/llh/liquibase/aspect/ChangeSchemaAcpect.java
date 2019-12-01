@@ -6,16 +6,16 @@
 package com.llh.liquibase.aspect;
 
 import com.llh.liquibase.annotation.ChangeSchema;
-import  com.llh.liquibase.util.DatabaseContextHolder;
-import javax.servlet.http.HttpServletRequest;
+import com.llh.liquibase.util.DatabaseContextHolder;
+import com.llh.liquibase.util.DatabaseSessionManager;
+import com.llh.liquibase.util.HttpSchemaUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -23,34 +23,28 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Aspect
 @Component
-public class ChangeSchemaInterceptor {
-  private Logger logger = LoggerFactory.getLogger(this.getClass());
+public class ChangeSchemaAcpect {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private DatabaseSessionManager databaseSessionManager;
 
     @Around("@annotation(changeSchema)")
     public synchronized Object proceed(ProceedingJoinPoint pjp, ChangeSchema changeSchema) throws Throwable {
         String schema = null;
         try {
-            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (requestAttributes != null) {
-                logger.info("#####  requestAttributes #######");
-                HttpServletRequest request = requestAttributes.getRequest();
-
-                schema = (String) request.getAttribute("schemaName");
-                if (schema == null) {
-                    schema = request.getParameter("schemaName");
-                }
-            } else {
-                logger.info("#####  getArgs #######");
+            schema = HttpSchemaUtil.getSchema();
+            if (schema == null) {
                 schema = (String) pjp.getArgs()[0];
             }
             logger.info("schema:  -> " + schema);
-            DatabaseContextHolder.set(schema);
+            databaseSessionManager.bindSession(schema);
             Object result = pjp.proceed();
-            DatabaseContextHolder.clear();
             return result;
         } finally {
             logger.info("clear DatabaseContextHolder");
+            databaseSessionManager.bindSession();
             DatabaseContextHolder.clear();
         }
-    }   
+    }
 }

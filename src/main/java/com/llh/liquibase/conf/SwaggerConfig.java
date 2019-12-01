@@ -30,14 +30,14 @@ public class SwaggerConfig {
         @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .globalOperationParameters(
+                /*.globalOperationParameters(
                         Arrays.asList(new ParameterBuilder()
                                 .name("schemaName")
                                 .description("change dynamic schema")
                                 .modelRef(new ModelRef("string"))
                                 .parameterType("query")
-                                .required(true)
-                                .build())).select()
+                                .required(false)
+                                .build()))*/.select()
                 .apis(RequestHandlerSelectors.basePackage("com.llh.liquibase"))
                 .paths(PathSelectors.ant("/api/**"))
                 .build()
